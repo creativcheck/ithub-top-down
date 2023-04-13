@@ -20,6 +20,35 @@ namespace Character
             CreatePool(count);
         }
 
+        public T GetFreeElement()
+        {
+            if (HasFreeElement(out T element))
+                return element;
+
+            if (_autoExpand)
+                return CreateObject(true);
+
+            throw new System.Exception("No free element and no pool auto expand");
+        }
+
+        private bool HasFreeElement(out T element)
+        {
+            for(int i = 0; i < _pool.Count; i++)
+            {
+                if(!_pool[i].gameObject.activeInHierarchy)
+                {
+                    element = _pool[i];
+                    element.transform.position = _container.position;
+                    element.transform.rotation = _container.rotation;
+                    element.gameObject.SetActive(true);
+                    return true;
+                }
+            }
+
+            element = null;
+            return false;
+        }
+
         private void CreatePool(int count)
         {
             _pool = new List<T>();

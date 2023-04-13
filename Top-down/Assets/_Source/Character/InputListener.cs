@@ -9,6 +9,7 @@ namespace Character
         private MainInput _mainInput;
 
         private Vector2 _direction;
+        private Coroutine _activeCoroutine;
 
         public void Initialize(CharacterActions actions)
         {
@@ -24,14 +25,30 @@ namespace Character
 
             _mainInput.Player.Move.performed += Move;
             _mainInput.Player.Move.canceled += Move;
+
+            _mainInput.Player.Shoot.performed += StartShoot;
+            _mainInput.Player.Shoot.canceled += StopShoot;
         }
 
-        private void Expose()
+        public void Expose()
         {
             _mainInput.Player.Disable();
 
             _mainInput.Player.Move.performed -= Move;
             _mainInput.Player.Move.canceled -= Move;
+
+            _mainInput.Player.Shoot.performed -= StartShoot;
+            _mainInput.Player.Shoot.canceled -= StopShoot;
+        }
+
+        private void StartShoot(InputAction.CallbackContext context)
+        {
+            _activeCoroutine = StartCoroutine(_characterActions.ShootDelay());
+        }
+
+        private void StopShoot(InputAction.CallbackContext context)
+        {
+            StopCoroutine(_activeCoroutine);
         }
 
         private void Move(InputAction.CallbackContext context)
